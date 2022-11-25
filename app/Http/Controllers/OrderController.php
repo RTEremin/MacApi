@@ -48,7 +48,7 @@ class OrderController extends Controller
      */
     public function info(): Response|Application|ResponseFactory
     {
-        return ResponseService::success(OrderResource::collection(Order::all()));
+        return response(OrderResource::collection(Order::all()));
     }
 
     /**
@@ -63,14 +63,8 @@ class OrderController extends Controller
             "code"=>fake()->unique()->numberBetween(1, 10000),
             "status_id"=>1,
         ]);
-        //todo: Вынести в order_product (наверное)
-        foreach ($request->products as $product){
-            OrderProduct::create([
-                "order_id" => $order->id,
-                "product_id"=> $product['product_id'],
-                "count"=> $product['product_count']
-            ]);
-        }
-        return ResponseService::success(OrderResource::make($order));
+        
+        $order->orderProducts()->insert($request->products);
+        return response(OrderResource::make($order));
     }
 }
